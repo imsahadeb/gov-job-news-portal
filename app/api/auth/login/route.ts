@@ -26,6 +26,10 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
         }
 
+        if (!user.email_verified) {
+            return NextResponse.json({ error: 'Please verify your email before logging in.' }, { status: 403 });
+        }
+
         // Generate token
         const token = signToken({ userId: user.id, email: user.email });
 
