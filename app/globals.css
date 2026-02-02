@@ -1,13 +1,30 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f8fafc;
+  /* Light gray/blueish background */
+  --foreground: #1e293b;
+  /* Slate 800 - Text Primary */
+  --primary: #dc2626;
+  /* Red 600 */
+  --primary-foreground: #ffffff;
+  --secondary: #1e293b;
+  /* Slate 800 */
+  --secondary-foreground: #ffffff;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  /* Slate 500 */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
