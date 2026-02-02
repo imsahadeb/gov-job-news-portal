@@ -1,19 +1,26 @@
 "use client";
 
-import { useState } from "react";
-import { User, Mail, Lock, Loader2, ArrowRight } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Mail, Lock, Loader2, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
-const SignUpForm = () => {
+const LoginForm = () => {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
     const [formData, setFormData] = useState({
-        name: "",
         email: "",
         password: ""
     });
+
+    useEffect(() => {
+        if (searchParams.get("signup") === "success") {
+            setSuccessMessage("Account created successfully! Please log in.");
+        }
+    }, [searchParams]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -26,7 +33,7 @@ const SignUpForm = () => {
         setError("");
 
         try {
-            const res = await fetch("/api/auth/signup", {
+            const res = await fetch("/api/auth/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData)
@@ -35,11 +42,12 @@ const SignUpForm = () => {
             const data = await res.json();
 
             if (!res.ok) {
-                throw new Error(data.error || "Something went wrong");
+                throw new Error(data.error || "Invalid credentials");
             }
 
-            // Redirect to login or home on success
-            router.push("/login?signup=success");
+            // Reload to update header state or redirect
+            router.push("/");
+            router.refresh();
         } catch (err: any) {
             setError(err.message);
         } finally {
@@ -51,9 +59,15 @@ const SignUpForm = () => {
         <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
             <div className="p-8">
                 <div className="text-center mb-8">
-                    <h2 className="text-3xl font-bold text-gray-800 mb-2">Create Account</h2>
-                    <p className="text-gray-500">Join us to get the latest job updates</p>
+                    <h2 className="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h2>
+                    <p className="text-gray-500">Log in to access your account</p>
                 </div>
+
+                {successMessage && (
+                    <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 text-sm rounded-r">
+                        {successMessage}
+                    </div>
+                )}
 
                 {error && (
                     <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm rounded-r">
@@ -62,24 +76,6 @@ const SignUpForm = () => {
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="space-y-2">
-                        <label className="text-sm font-semibold text-gray-700 ml-1">Full Name</label>
-                        <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <User className="h-5 w-5 text-gray-400" />
-                            </div>
-                            <input
-                                type="text"
-                                name="name"
-                                required
-                                value={formData.name}
-                                onChange={handleChange}
-                                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all outline-none bg-gray-50 focus:bg-white text-gray-600 placeholder-gray-400"
-                                placeholder="John Doe"
-                            />
-                        </div>
-                    </div>
-
                     <div className="space-y-2">
                         <label className="text-sm font-semibold text-gray-700 ml-1">Email Address</label>
                         <div className="relative">
@@ -108,13 +104,18 @@ const SignUpForm = () => {
                                 type="password"
                                 name="password"
                                 required
-                                minLength={6}
                                 value={formData.password}
                                 onChange={handleChange}
-                                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all outline-none bg-gray-50 focus:bg-white text-gray-900 placeholder-gray-400"
+                                className="w-full pl-10 pr-4 py-3 border text-gray-600 border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all outline-none bg-gray-50 focus:bg-white"
                                 placeholder="••••••••"
                             />
                         </div>
+                    </div>
+
+                    <div className="flex items-center justify-end">
+                        <Link href="#" className="text-sm font-medium text-red-600 hover:text-red-500">
+                            Forgot password?
+                        </Link>
                     </div>
 
                     <button
@@ -126,7 +127,7 @@ const SignUpForm = () => {
                             <Loader2 className="animate-spin h-5 w-5" />
                         ) : (
                             <>
-                                Sign Up <ArrowRight className="ml-2 h-5 w-5" />
+                                Log In <ArrowRight className="ml-2 h-5 w-5" />
                             </>
                         )}
                     </button>
@@ -134,9 +135,9 @@ const SignUpForm = () => {
 
                 <div className="mt-8 text-center">
                     <p className="text-gray-600 text-sm">
-                        Already have an account?{" "}
-                        <Link href="/login" className="text-red-600 font-semibold hover:text-red-700 hover:underline">
-                            Log in
+                        Don't have an account?{" "}
+                        <Link href="/signup" className="text-red-600 font-semibold hover:text-red-700 hover:underline">
+                            Sign up
                         </Link>
                     </p>
                 </div>
@@ -145,4 +146,4 @@ const SignUpForm = () => {
     );
 };
 
-export default SignUpForm;
+export default LoginForm;

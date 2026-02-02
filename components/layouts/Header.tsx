@@ -1,13 +1,39 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import NavDropdown from "../ui/NavDropdown";
 import MobileNavItem from "../ui/MobileNavItem";
 import { EXAMS_MENU, RECENT_EXAMS_MENU } from "@/data/menuItems";
 
 const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [user, setUser] = useState<{ name: string } | null>(null);
+
+    useEffect(() => {
+        const checkSession = async () => {
+            try {
+                const res = await fetch("/api/auth/me");
+                if (res.ok) {
+                    const data = await res.json();
+                    setUser(data.user);
+                }
+            } catch (error) {
+                console.error("Session check failed");
+            }
+        };
+        checkSession();
+    }, []);
+
+    const handleLogout = async () => {
+        try {
+            await fetch("/api/auth/logout", { method: "POST" });
+            setUser(null);
+            window.location.reload();
+        } catch (error) {
+            console.error("Logout failed");
+        }
+    };
 
     return (
         <header className="font-sans sticky top-0 z-50 bg-white">
@@ -42,9 +68,18 @@ const Header = () => {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                             </button>
-                            <Link href="/login" className="bg-red-600 text-white px-4 py-2 rounded text-sm font-semibold hover:bg-red-700 transition duration-300">
-                                Login / Sign Up
-                            </Link>
+                            {user ? (
+                                <div className="flex items-center space-x-4">
+                                    <span className="text-sm font-semibold text-gray-700">Hi, {user.name}</span>
+                                    <button onClick={handleLogout} className="bg-gray-100 text-gray-700 px-4 py-2 rounded text-sm font-semibold hover:bg-gray-200 transition duration-300">
+                                        Logout
+                                    </button>
+                                </div>
+                            ) : (
+                                <Link href="/login" className="bg-red-600 text-white px-4 py-2 rounded text-sm font-semibold hover:bg-red-700 transition duration-300">
+                                    Login / Sign Up
+                                </Link>
+                            )}
                         </div>
 
                         {/* Mobile Menu Button */}
@@ -78,9 +113,18 @@ const Header = () => {
                             <MobileNavItem item={{ label: "JOB ALERTS", href: "/job-alerts" }} />
                             <MobileNavItem item={{ label: "STATE EXAMS", href: "/state-exams" }} />
 
-                            <Link href="/login" className="flex items-center justify-center bg-red-600 text-white px-4 py-2 rounded text-sm font-semibold hover:bg-red-700 mt-4">
-                                Login / Sign Up
-                            </Link>
+                            {user ? (
+                                <div className="flex flex-col space-y-2 mt-4">
+                                    <span className="text-sm font-semibold text-gray-700 text-center">Hi, {user.name}</span>
+                                    <button onClick={handleLogout} className="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded text-sm font-semibold hover:bg-gray-200">
+                                        Logout
+                                    </button>
+                                </div>
+                            ) : (
+                                <Link href="/login" className="flex items-center justify-center bg-red-600 text-white px-4 py-2 rounded text-sm font-semibold hover:bg-red-700 mt-4">
+                                    Login / Sign Up
+                                </Link>
+                            )}
                         </div>
                     </div>
                 )}
