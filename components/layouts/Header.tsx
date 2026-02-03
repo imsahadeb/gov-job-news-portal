@@ -48,7 +48,10 @@ const Header = () => {
                                 <div className="w-24 h-8 bg-gray-200 animate-pulse rounded"></div>
                             ) : user ? (
                                 <div className="flex items-center space-x-4">
-                                    <span className="text-sm font-semibold text-gray-700">Hi, {user.name}</span>
+                                    <Link href="/dashboard" className="flex items-center space-x-2 text-sm font-semibold text-gray-700 hover:text-red-600 transition duration-200">
+                                        {/* Optional: Add small avatar here if available in user object later */}
+                                        <span>Hi, {user.name}</span>
+                                    </Link>
                                     <button onClick={logout} className="bg-gray-100 text-gray-700 px-4 py-2 rounded text-sm font-semibold hover:bg-gray-200 transition duration-300">
                                         Logout
                                     </button>
@@ -95,7 +98,9 @@ const Header = () => {
                                 <div className="w-full h-10 bg-gray-200 animate-pulse rounded mt-4"></div>
                             ) : user ? (
                                 <div className="flex flex-col space-y-2 mt-4">
-                                    <span className="text-sm font-semibold text-gray-700 text-center">Hi, {user.name}</span>
+                                    <Link href="/dashboard" className="text-sm font-semibold text-gray-700 text-center hover:text-red-600 py-2">
+                                        Hi, {user.name}
+                                    </Link>
                                     <button onClick={logout} className="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded text-sm font-semibold hover:bg-gray-200">
                                         Logout
                                     </button>
