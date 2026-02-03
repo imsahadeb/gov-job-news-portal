@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { signToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
+import { sendWelcomeEmail } from '@/lib/email';
 
 export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
@@ -63,6 +64,9 @@ export async function GET(req: Request) {
                 [googleUser.name, googleUser.email, googleUser.id, googleUser.picture, true]
             );
             user = insertResult.rows[0];
+
+            // Send Welcome Email
+            await sendWelcomeEmail(user.email, user.name);
         } else {
             // Update existing user with google_id if missing
             if (!user.google_id) {
