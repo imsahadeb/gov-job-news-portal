@@ -4,10 +4,13 @@ import { useState, useEffect } from "react";
 import { Mail, Lock, Loader2, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import GoogleLoginButton from "./GoogleLoginButton";
 
 const LoginForm = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const { checkSession, user, loading } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
@@ -21,6 +24,20 @@ const LoginForm = () => {
             setSuccessMessage("Account created successfully! Please log in.");
         }
     }, [searchParams]);
+
+    useEffect(() => {
+        if (user) {
+            router.replace("/");
+        }
+    }, [user, router]);
+
+    if (loading || user) {
+        return (
+            <div className="flex justify-center items-center p-8">
+                <Loader2 className="animate-spin h-8 w-8 text-red-600" />
+            </div>
+        );
+    }
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -46,8 +63,9 @@ const LoginForm = () => {
             }
 
             // Reload to update header state or redirect
+            await checkSession();
             router.push("/");
-            router.refresh();
+            // router.refresh();
         } catch (err: any) {
             setError(err.message);
         } finally {
@@ -74,6 +92,18 @@ const LoginForm = () => {
                         {error}
                     </div>
                 )}
+
+                <div className="mb-6">
+                    <GoogleLoginButton />
+                    <div className="relative my-6">
+                        <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-gray-200"></div>
+                        </div>
+                        <div className="relative flex justify-center text-sm">
+                            <span className="px-2 bg-white text-gray-500">Or continue with email</span>
+                        </div>
+                    </div>
+                </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="space-y-2">

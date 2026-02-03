@@ -6,7 +6,11 @@ export async function GET() {
         await query(`
       ALTER TABLE users 
       ADD COLUMN IF NOT EXISTS email_verified BOOLEAN DEFAULT FALSE,
-      ADD COLUMN IF NOT EXISTS verification_token VARCHAR(255);
+      ADD COLUMN IF NOT EXISTS verification_token VARCHAR(255),
+      ADD COLUMN IF NOT EXISTS google_id VARCHAR(255) UNIQUE,
+      ADD COLUMN IF NOT EXISTS image VARCHAR(255);
+
+      ALTER TABLE users ALTER COLUMN password DROP NOT NULL;
     `);
         return NextResponse.json({ success: true, message: 'Users table updated' });
     } catch (error: any) {

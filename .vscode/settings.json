@@ -1,0 +1,20 @@
+{
+    "sqltools.connections": [
+        {
+            "pgOptions": {
+                "ssl": {
+                    "rejectUnauthorized": true
+                }
+            },
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "gov-job-news-portal-gov-job-news-portal.k.aivencloud.com",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "gov-jobs-news-portal",
+            "database": "defaultdb",
+            "username": "avnadmin",
+            "password": ""
+        }
+    ]
+}

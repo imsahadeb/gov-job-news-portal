@@ -1,19 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { User, Mail, Lock, Loader2, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import GoogleLoginButton from "./GoogleLoginButton";
+import Turnstile from "react-turnstile";
 
 const SignUpForm = () => {
     const router = useRouter();
+    const { user, loading } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
+    const [turnstileToken, setTurnstileToken] = useState("");
     const [formData, setFormData] = useState({
         name: "",
         email: "",
         password: ""
     });
+
+    useEffect(() => {
+        if (!loading && user) {
+            router.push("/");
+        }
+    }, [user, loading, router]);
+
+    if (loading || user) {
+        return (
+            <div className="flex justify-center items-center p-8">
+                <Loader2 className="animate-spin h-8 w-8 text-red-600" />
+            </div>
+        );
+    }
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -29,7 +48,7 @@ const SignUpForm = () => {
             const res = await fetch("/api/auth/signup", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData)
+                body: JSON.stringify({ ...formData, turnstileToken })
             });
 
             const data = await res.json();
@@ -60,6 +79,18 @@ const SignUpForm = () => {
                         {error}
                     </div>
                 )}
+
+                <div className="mb-6">
+                    <GoogleLoginButton />
+                    <div className="relative my-6">
+                        <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-gray-200"></div>
+                        </div>
+                        <div className="relative flex justify-center text-sm">
+                            <span className="px-2 bg-white text-gray-500">Or sign up with email</span>
+                        </div>
+                    </div>
+                </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="space-y-2">
@@ -117,9 +148,16 @@ const SignUpForm = () => {
                         </div>
                     </div>
 
+                    <div className="flex justify-center my-4">
+                        <Turnstile
+                            sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
+                            onVerify={(token) => setTurnstileToken(token)}
+                        />
+                    </div>
+
                     <button
                         type="submit"
-                        disabled={isLoading}
+                        disabled={isLoading || !turnstileToken}
                         className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-xl transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-red-500/30 disabled:opacity-70 disabled:cursor-not-allowed transform hover:-translate-y-0.5"
                     >
                         {isLoading ? (

@@ -6,7 +6,7 @@ import { sendVerificationEmail } from '@/lib/email';
 
 export async function POST(req: Request) {
     try {
-        const { name, email, password } = await req.json();
+        const { name, email, password, turnstileToken } = await req.json();
 
         // Basic validation
         if (!name || !email || !password) {
@@ -15,6 +15,24 @@ export async function POST(req: Request) {
 
         if (password.length < 6) {
             return NextResponse.json({ error: 'Password must be at least 6 characters' }, { status: 400 });
+        }
+
+        // Verify Turnstile Token
+        const SECRET_KEY = process.env.TURNSTILE_SECRET_KEY;
+        if (SECRET_KEY) {
+            const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    secret: SECRET_KEY,
+                    response: turnstileToken,
+                }),
+            });
+
+            const verifyData = await verifyRes.json();
+            if (!verifyData.success) {
+                return NextResponse.json({ error: 'Invalid CAPTCHA' }, { status: 400 });
+            }
         }
 
         // Check if user exists

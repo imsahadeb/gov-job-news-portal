@@ -5,35 +5,11 @@ import { useState, useEffect } from "react";
 import NavDropdown from "../ui/NavDropdown";
 import MobileNavItem from "../ui/MobileNavItem";
 import { EXAMS_MENU, RECENT_EXAMS_MENU } from "@/data/menuItems";
+import { useAuth } from "@/context/AuthContext";
 
 const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [user, setUser] = useState<{ name: string } | null>(null);
-
-    useEffect(() => {
-        const checkSession = async () => {
-            try {
-                const res = await fetch("/api/auth/me");
-                if (res.ok) {
-                    const data = await res.json();
-                    setUser(data.user);
-                }
-            } catch (error) {
-                console.error("Session check failed");
-            }
-        };
-        checkSession();
-    }, []);
-
-    const handleLogout = async () => {
-        try {
-            await fetch("/api/auth/logout", { method: "POST" });
-            setUser(null);
-            window.location.reload();
-        } catch (error) {
-            console.error("Logout failed");
-        }
-    };
+    const { user, logout } = useAuth();
 
     return (
         <header className="font-sans sticky top-0 z-50 bg-white">
@@ -71,7 +47,7 @@ const Header = () => {
                             {user ? (
                                 <div className="flex items-center space-x-4">
                                     <span className="text-sm font-semibold text-gray-700">Hi, {user.name}</span>
-                                    <button onClick={handleLogout} className="bg-gray-100 text-gray-700 px-4 py-2 rounded text-sm font-semibold hover:bg-gray-200 transition duration-300">
+                                    <button onClick={logout} className="bg-gray-100 text-gray-700 px-4 py-2 rounded text-sm font-semibold hover:bg-gray-200 transition duration-300">
                                         Logout
                                     </button>
                                 </div>
@@ -116,7 +92,7 @@ const Header = () => {
                             {user ? (
                                 <div className="flex flex-col space-y-2 mt-4">
                                     <span className="text-sm font-semibold text-gray-700 text-center">Hi, {user.name}</span>
-                                    <button onClick={handleLogout} className="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded text-sm font-semibold hover:bg-gray-200">
+                                    <button onClick={logout} className="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded text-sm font-semibold hover:bg-gray-200">
                                         Logout
                                     </button>
                                 </div>
