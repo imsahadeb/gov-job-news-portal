@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 import { verifyToken } from "@/lib/auth";
 import { query } from "@/lib/db";
 import Link from "next/link";
-import { LogOut, User, CheckCircle, Mail, Briefcase, Settings } from "lucide-react";
+import { CheckCircle, Mail, Briefcase } from "lucide-react";
+import ProfileSettings from "@/components/dashboard/ProfileSettings";
 
 async function getUser() {
     const cookieStore = await cookies();
@@ -16,7 +17,7 @@ async function getUser() {
         if (!decoded) return null;
 
         const result = await query(
-            "SELECT id, name, email, google_id, image, email_verified, created_at FROM users WHERE id = $1",
+            "SELECT id, name, email, google_id, image, email_verified, created_at, resume_url, address, dob, mobile, sex, bio, linkedin_url FROM users WHERE id = $1",
             [decoded.userId]
         );
         return result.rows[0];
@@ -72,22 +73,14 @@ export default async function DashboardPage() {
                                 </div>
                             </div>
                         </div>
-
-                        {/* Actions */}
-                        {/* <div className="flex space-x-3">
-                            <button className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition duration-200">
-                                <Settings size={18} />
-                                <span>Settings</span>
-                            </button>
-                        </div> */}
                     </div>
                 </div>
             </div>
 
             <div className="container mx-auto px-4 mt-8">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                     {/* Sidebar / Stats */}
-                    <div className="md:col-span-1 space-y-6">
+                    <div className="lg:col-span-1 space-y-6">
                         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                             <h3 className="text-lg font-semibold text-gray-800 mb-4">Account Status</h3>
                             <div className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
@@ -109,35 +102,26 @@ export default async function DashboardPage() {
                                 </span>
                             </div>
                         </div>
-                    </div>
 
-                    {/* Main Content */}
-                    <div className="md:col-span-2 space-y-6">
-                        {/* Saved Jobs Placeholder */}
                         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                            <div className="flex items-center justify-between mb-6">
-                                <h2 className="text-xl font-bold text-gray-900 flex items-center">
-                                    <Briefcase className="mr-2 text-red-600" size={24} />
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-lg font-bold text-gray-900 flex items-center">
+                                    <Briefcase className="mr-2 text-red-600" size={20} />
                                     Saved Jobs
                                 </h2>
-                                {/* <Link href="/jobs" className="text-red-600 hover:text-red-700 text-sm font-medium hover:underline">
-                                    Browse Jobs
-                                </Link> */}
                             </div>
-
-                            <div className="flex flex-col items-center justify-center Py-12 text-center bg-gray-50 rounded-lg border-2 border-dashed border-gray-200 p-12">
-                                <div className="bg-white p-4 rounded-full shadow-sm mb-4">
-                                    <Briefcase size={32} className="text-gray-400" />
-                                </div>
-                                <h3 className="text-lg font-medium text-gray-900 mb-1">No saved jobs yet</h3>
-                                <p className="text-gray-500 max-w-sm mb-6">
-                                    Jobs you save will appear here. Start exploring government job notifications to save your favorites.
-                                </p>
-                                <Link href="/" className="px-6 py-2.5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition duration-200 shadow-md hover:shadow-lg">
-                                    Browse Latest Jobs
+                            <div className="text-center py-6">
+                                <p className="text-gray-500 text-sm mb-4">No saved jobs yet.</p>
+                                <Link href="/" className="text-red-600 hover:text-red-700 text-sm font-medium hover:underline">
+                                    Browse Jobs
                                 </Link>
                             </div>
                         </div>
+                    </div>
+
+                    {/* Main Content: Profile Settings */}
+                    <div className="lg:col-span-3">
+                        <ProfileSettings user={user} />
                     </div>
                 </div>
             </div>
