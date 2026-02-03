@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { signToken } from '@/lib/auth';
 
 export async function GET(req: Request) {
     try {
@@ -11,7 +12,7 @@ export async function GET(req: Request) {
         }
 
         // Find user with token
-        const result = await query('SELECT id FROM users WHERE verification_token = $1', [token]);
+        const result = await query('SELECT id, email FROM users WHERE verification_token = $1', [token]);
         const user = result.rows[0];
 
         if (!user) {
@@ -21,7 +22,21 @@ export async function GET(req: Request) {
         // Verify user and clear token
         await query('UPDATE users SET email_verified = TRUE, verification_token = NULL WHERE id = $1', [user.id]);
 
-        return NextResponse.json({ success: true, message: 'Email verified successfully' });
+        // Generate JWT Token
+        const authToken = signToken({ userId: user.id, email: user.email });
+
+        // Create response with cookie
+        const response = NextResponse.json({ success: true, message: 'Email verified successfully' });
+
+        response.cookies.set('auth_token', authToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 60 * 60 * 24 * 7, // 7 days
+            path: '/',
+        });
+
+        return response;
 
     } catch (error: any) {
         console.error('Verification error:', error);

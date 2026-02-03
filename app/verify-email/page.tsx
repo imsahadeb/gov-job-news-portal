@@ -7,6 +7,7 @@ import Link from 'next/link';
 
 function VerifyContent() {
     const searchParams = useSearchParams();
+    const router = useRouter();
     const token = searchParams.get('token');
     const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
     const [message, setMessage] = useState('');
@@ -37,6 +38,15 @@ function VerifyContent() {
         verify();
     }, [token]);
 
+    useEffect(() => {
+        if (status === 'success') {
+            const timer = setTimeout(() => {
+                router.push('/');
+            }, 2000);
+            return () => clearTimeout(timer);
+        }
+    }, [status, router]);
+
     return (
         <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md text-center">
             {status === 'loading' && (
@@ -50,12 +60,12 @@ function VerifyContent() {
                 <div className="flex flex-col items-center">
                     <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
                     <h2 className="text-2xl font-bold text-gray-800 mb-2">Email Verified!</h2>
-                    <p className="text-gray-600 mb-6">Your account has been successfully verified.</p>
+                    <p className="text-gray-600 mb-6">You have been logged in successfully.</p>
                     <Link
-                        href="/login"
+                        href="/"
                         className="bg-red-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-red-700 transition"
                     >
-                        Go to Login
+                        Go to Dashboard
                     </Link>
                 </div>
             )}
