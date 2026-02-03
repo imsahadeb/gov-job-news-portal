@@ -20,17 +20,18 @@ export async function POST(req: Request) {
         // Verify Turnstile Token
         const SECRET_KEY = process.env.TURNSTILE_SECRET_KEY;
         if (SECRET_KEY) {
+            const formData = new URLSearchParams();
+            formData.append('secret', SECRET_KEY);
+            formData.append('response', turnstileToken);
+
             const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    secret: SECRET_KEY,
-                    response: turnstileToken,
-                }),
+                body: formData,
             });
 
             const verifyData = await verifyRes.json();
             if (!verifyData.success) {
+                console.error('Turnstile verification failed:', verifyData);
                 return NextResponse.json({ error: 'Invalid CAPTCHA' }, { status: 400 });
             }
         }
